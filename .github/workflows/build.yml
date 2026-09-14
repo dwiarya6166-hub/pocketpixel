@@ -1,0 +1,35 @@
+name: Build PocketPixel APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download PocketPixel project ZIP
+        run: |
+          wget -O project.zip "${{ github.server_url }}/${{ github.repository }}/raw/refs/heads/${{ github.event.repository.default_branch }}/PocketPixel_phase7_github_build.zip"
+
+      - name: Extract project
+        run: |
+          unzip -q project.zip -d project
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build APK
+        working-directory: project
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: PocketPixel-APK
+          path: project/app/build/outputs/apk/debug/app-debug.apk
